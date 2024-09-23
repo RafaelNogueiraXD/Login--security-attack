@@ -32,8 +32,10 @@ const FormData = sequelize.define('FormData', {
     }
 });
 
-// Sincronizar o modelo com o banco de dados (cria a tabela se ela não existir)
-sequelize.sync();
+// Sincronizar o modelo com o banco de dados (forçar a recriação da tabela)
+sequelize.sync({ force: true }).then(() => {
+    console.log('Database & tables created!');
+});
 
 // Middleware para processar dados do formulário
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -45,8 +47,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.post('/process', async (req, res) => {
     const { name, email, message, password } = req.body;
 
-    // Inserir os dados no banco de dados (vulnerável a SQL Injection para fins de teste)
     try {
+        // Inserir os dados no banco de dados
         const formData = await FormData.create({ name, email, message, password });
         res.send(`
             <h1>Form submission successful!</h1>
@@ -60,7 +62,7 @@ app.post('/process', async (req, res) => {
     }
 });
 
-// Inicia o servidor
+// Iniciar o servidor
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
